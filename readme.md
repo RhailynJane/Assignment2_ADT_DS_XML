@@ -1,3 +1,4 @@
+
 # XML Parser & Validator
 
 **Assignment:** CPRG304B - Assignment 2  
@@ -25,32 +26,24 @@ This is a Java-based XML Parser that validates the structure of XML documents us
 
 ---
 
-## ▶️ How to Run the Program (JAR-based)
+## Running the Application
 
-### ✅ Requirements
+### Prerequisites
 
-- Java JDK 8 or higher
-- Terminal or Command Prompt access
+- Java 21 or later must be installed.
+- If your system default Java version is older than the version used to compile the program, you need to run the JAR with the correct Java runtime explicitly.
 
-### 🚀 Steps
+### How to Run
 
-1. Open a terminal and navigate to the folder containing `Parser.jar`.
-2. Run the parser using one of the following options:
+1. Open PowerShell.
+2. Navigate to the project directory containing `Parser.jar`.
+3. Run the following command to execute the parser on a sample XML file (`test-files/valid.xml`):
 
-   **a)** Provide an XML file as an argument:
-   ```bash
-   java -jar Parser.jar yourfile.xml
-   ```
+```powershell
+& "C:\Program Files\Java\jdk-23\bin\java.exe" -jar Parser.jar test-files/valid.xml
+```
 
-   **b)** Run without arguments (interactive mode):
-   ```bash
-   java -jar Parser.jar
-   ```
-
-   **Example:**
-   ```bash
-   java -jar Parser.jar test-files/valid.xml
-   ```
+Replace the Java path with your installed JDK 23 path if different.
 
 ---
 
@@ -66,9 +59,10 @@ If you're building the project using IntelliJ IDEA:
    - Output layout: Select "Extract to the target JAR"
 4. Go to **Build > Build Artifacts > Parser:jar > Build**
 5. The generated JAR file will be located at:
-   ```
-   out/artifacts/Parser/Parser.jar
-   ```
+
+```
+out/artifacts/Parser/Parser.jar
+```
 
 ---
 
@@ -93,11 +87,7 @@ Open `doc/index.html` in any browser to view the generated documentation.
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
-    <person id="1">
-        <name>John Doe</name>
-        <age>30</age>
-    </person>
-    <selfClosing />
+   <child>Content</child>
 </root>
 ```
 
@@ -105,11 +95,16 @@ Open `doc/index.html` in any browser to view the generated documentation.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<root>
-    <person>
-        <name>John Doe</name>
-        <age>30
-</root>
+<library>
+   <book>
+   <title>Refactoring</title>
+   <author>Martin Fowler</author>
+   <!-- Missing closing tag for book -->
+   <book>
+      <title>The Pragmatic Programmer</title>
+      <author>Andrew Hunt</author>
+   </book
+</library>
 ```
 
 > 📌 Place these files in a folder named `test-files/` for testing.
