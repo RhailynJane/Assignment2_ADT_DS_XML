@@ -1,308 +1,148 @@
-# XML Parser Project
+===========================================
+XML Parser & Validator - readMe.txt
+===========================================
 
-A Java-based XML parser that validates XML document structure using a queue-based approach to ensure proper tag nesting and closure.
+Assignment: CPRG304B - Assignment 2  
+Group Members:
+- Komalpreet Kaur
+- Anne Marie Ala
+- Rhailyn Jane Cona
+- Abel Fekadu
 
-## Group Members
-- **Member 1**: .Kaur, Komalpreet
-- **Member 2**: Ala, Anne Marie
-- **Member 3**: Cona, Rhailyn Jane
-- **Member 4**: Fekadu, Abel
+Overview:
+---------
+This is a Java-based XML Parser that validates XML document structure using a custom-built queue and list-based data structure. It ensures proper nesting of tags, handles self-closing tags, ignores comments and XML declarations, and reports any structural errors with line numbers.
 
-## Features
+Submission Includes:
+--------------------
+- `Parser.jar` (Executable JAR)
+- `readMe.txt` (This file)
+- `/doc` folder (Javadoc with -private scope)
+- Complete IntelliJ project folder
+- Marking criteria document (filled out and signed)
 
-- **Queue-based validation**: Uses FIFO principle to validate XML tag nesting
-- **Comprehensive error reporting**: Shows line numbers and specific error types
-- **Multiple input modes**: Command-line arguments or interactive mode
-- **Batch processing**: Can validate multiple files at once
-- **Performance metrics**: Shows parsing time and file statistics
-- **Robust error handling**: Handles malformed XML and file I/O errors
+===========================================
+How to Run the Program (JAR-based)
+===========================================
 
-## Prerequisites
+Requirements:
+-------------
+- Java JDK 8 or higher installed
+- Terminal or Command Prompt access
 
-- Java Development Kit (JDK) 8 or higher
-- Command line access (Terminal/Command Prompt)
+Steps:
+------
+1. Open a terminal and navigate to the folder containing `Parser.jar`
+2. Run the parser with one of the following:
 
-## Quick Start
+   a) Provide an XML file as argument:
+   java -jar Parser.jar yourfile.xml
 
-### 1. Download and Setup
+   b) No argument (interactive mode):
+   java -jar Parser.jar
 
-Clone or download the project files and organize them according to the project structure above.
+   Example:
+   java -jar Parser.jar test-files/valid.xml
 
-### 2. Compile the Project
+===========================================
+IntelliJ IDEA - Building the Project
+===========================================
 
-#### Option A: Manual Compilation
-```bash
-# Navigate to the project directory
-cd XMLParser
+If building from IntelliJ:
 
-# Create output directory
-mkdir -p out
+1. Open IntelliJ and your project (A2Group4).
+2. Go to File > Project Structure > Artifacts.
+3. Add a new JAR:
+   - Type: JAR > From Modules with Dependencies
+   - Main class: appDomain.Parser
+   - Choose: "Extract to the target JAR"
+4. Go to Build > Build Artifacts > Parser:jar > Build
+5. The JAR will appear under:
+   out/artifacts/Parser/Parser.jar
 
-# Compile all Java files
-javac -d out src/utilities/*.java src/implementations/*.java src/appDomain/*.java
-```
+===========================================
+Javadoc Generation Instructions
+===========================================
 
-#### Option B: Using Compilation Script
+To generate documentation:
 
-**Windows (compile.bat):**
-```batch
-@echo off
-echo Compiling XML Parser...
-mkdir out 2>NUL
-javac -d out src/utilities/*.java src/implementations/*.java src/appDomain/*.java
-if %ERRORLEVEL% EQU 0 (
-    echo Compilation successful!
-) else (
-    echo Compilation failed!
-)
-```
+1. Tools > Generate JavaDoc...
+2. Choose all source packages (e.g., appDomain, implementations, utilities)
+3. Set visibility to: private
+4. Output to: `doc` folder
+5. Click OK
 
-**Linux/Mac (compile.sh):**
-```bash
-#!/bin/bash
-echo "Compiling XML Parser..."
-mkdir -p out
-javac -d out src/utilities/*.java src/implementations/*.java src/appDomain/*.java
-if [ $? -eq 0 ]; then
-    echo "Compilation successful!"
-else
-    echo "Compilation failed!"
-fi
-```
+Open `doc/index.html` in any browser to view the documentation.
 
-Make the script executable and run:
-```bash
-chmod +x compile.sh
-./compile.sh
-```
+===========================================
+Sample XML Files for Testing
+===========================================
 
-### 3. Create Test Files
-
-Create some sample XML files to test the parser:
-
-**valid.xml** (Valid XML):
-```xml
+**valid.xml**
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
     <person id="1">
         <name>John Doe</name>
         <age>30</age>
-        <address>
-            <street>123 Main St</street>
-            <city>Anytown</city>
-        </address>
     </person>
     <selfClosing />
 </root>
-```
 
-**invalid.xml** (Invalid XML):
-```xml
+**invalid.xml**
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
     <person>
         <name>John Doe</name>
         <age>30
-        <address>
-            <street>123 Main St</street>
-        </address>
-    </person>
 </root>
-```
 
-## Running the Parser
+Place these in a `test-files/` folder for testing.
 
-### Method 1: Command Line with Filename
-```bash
-# Navigate to project directory
-cd XMLParser
-
-# Run with specific file
-java -cp out appDomain.Parser test-files/valid.xml
-java -cp out appDomain.Parser test-files/invalid.xml
-```
-
-### Method 2: Interactive Mode
-```bash
-# Run without arguments for interactive mode
-java -cp out appDomain.Parser
-```
-
-Then enter filenames when prompted:
-```
-=================================
-    XML Parser & Validator
-=================================
-
-Enter XML filename to parse (or 'quit' to exit):
-> test-files/valid.xml
-```
-
-### Method 3: Using Scripts
-
-**Windows (run.bat):**
-```batch
-@echo off
-java -cp out appDomain.Parser %*
-```
-
-**Linux/Mac (run.sh):**
-```bash
-#!/bin/bash
-java -cp out appDomain.Parser "$@"
-```
-
-Usage:
-```bash
-./run.sh test-files/valid.xml
-./run.sh  # Interactive mode
-```
-
-## Sample Output
-
-### Valid XML File:
-```
-==================================================
-Parsing file: test-files/valid.xml
-==================================================
-
-Parsing completed in 5 ms
-File size: 245 bytes
+===========================================
+Sample Program Output
+===========================================
 
 ✓ SUCCESS: XML file is valid!
-  All opening tags have matching closing tags.
-
-Summary:
-  Errors found: 0
-  Status: VALID
-```
-
-### Invalid XML File:
-```
-==================================================
-Parsing file: test-files/invalid.xml
-==================================================
-
-Parsing completed in 3 ms
-File size: 198 bytes
+All opening tags have matching closing tags.
 
 ✗ VALIDATION FAILED: XML file has errors.
+1. Line 4: Malformed tag - missing closing '>'
+2. Error: Unclosed tag <person>
 
-Errors found:
-  1. Line 4: Malformed tag - missing closing '>'
-  2. Error: Unclosed tag <root>
-  3. Error: Unclosed tag <person>
+===========================================
+Common Issues / Troubleshooting
+===========================================
 
-Summary:
-  Errors found: 3
-  Status: INVALID
-```
+- "Class not found": Ensure you're using `java -jar Parser.jar` or correct classpath
+- "File not found": Make sure the XML file exists and path is correct
+- Compilation errors: Verify all files exist and Java version is 8+
 
-## Testing the Implementation
+===========================================
+Core Components & Data Structures
+===========================================
 
-### Test Cases to Try
+- appDomain.Parser: CLI and main entry point
+- appDomain.XMLParser: Core parsing logic
+- implementations.MyQueue: Custom circular queue
+- implementations.MyArrayList / MyDLL: List structures
+- utilities.*: Interfaces (QueueADT, ListADT)
+- exceptions.*: Custom exceptions
 
-1. **Valid XML with nested tags**
-2. **Missing closing tags**
-3. **Mismatched tag names**
-4. **Self-closing tags**
-5. **XML with attributes**
-6. **Empty files**
-7. **Files with only comments**
-8. **Malformed tags**
+Algorithm:
+----------
+- Enqueue opening tags
+- On closing tag, dequeue and compare
+- Validate nesting and structure
+- Report errors with line number
 
-### Creating Test Files
+===========================================
+Notes
+===========================================
 
-Create a `test-files` directory with various XML samples:
+- This is a console-based Java program. It does not include a GUI.
+- It handles multiple files via batch processing (if enabled in code).
+- Built and tested using IntelliJ IDEA 2023.
 
-```bash
-mkdir test-files
-
-# Create test files with different scenarios
-cat > test-files/nested.xml << 'EOF'
-<root>
-    <level1>
-        <level2>
-            <level3>Content</level3>
-        </level2>
-    </level1>
-</root>
-EOF
-
-cat > test-files/mismatched.xml << 'EOF'
-<root>
-    <person>
-        <name>John</name>
-    </student>
-</root>
-EOF
-```
-
-## Troubleshooting
-
-### Common Issues
-
-1. **"Class not found" error**
-    - Ensure you're running from the correct directory
-    - Check that compilation was successful
-    - Verify the classpath: `java -cp out appDomain.Parser`
-
-2. **"File not found" error**
-    - Check file paths are correct
-    - Use absolute paths if necessary
-    - Ensure test files exist
-
-3. **Compilation errors**
-    - Verify all Java files are in correct directories
-    - Check Java version compatibility
-    - Ensure all dependencies are present
-
-### Debug Mode
-
-Add debug output by modifying the XMLParser class or run with verbose output:
-```bash
-java -cp out -verbose appDomain.Parser test-files/sample.xml
-```
-
-## Project Components
-
-### Core Classes
-
-1. **QueueADT<E>** - Interface defining queue operations
-2. **MyQueue<E>** - Array-based queue implementation with dynamic resizing
-3. **EmptyQueueException** - Custom exception for empty queue operations
-4. **XMLParser** - Core parsing logic using queue for tag validation
-5. **Parser** - Main class with command-line interface
-
-### Algorithm Overview
-
-The parser uses a queue-based approach:
-
-1. **Opening tags** are enqueued as they're encountered
-2. **Closing tags** trigger dequeue operations
-3. **Tag matching** ensures proper nesting (FIFO principle)
-4. **Error reporting** tracks issues with line numbers
-5. **Final validation** checks for unclosed tags
-
-## Performance Notes
-
-- **Time Complexity**: O(n) where n is the file size
-- **Space Complexity**: O(t) where t is the maximum nesting depth
-- **Memory Usage**: Dynamic array resizing for efficient memory usage
-
-## Contributing
-
-When extending this project:
-
-1. Follow existing code style and documentation
-2. Add comprehensive error handling
-3. Include unit tests for new features
-4. Update this README with new functionality
-
-## License
-
-This project is created for educational purposes. Feel free to use and modify as needed.
-
----
-
-*For questions or issues, please refer to the source code comments or create test cases to verify functionality.*
+===========================================
+End of Document
+===========================================

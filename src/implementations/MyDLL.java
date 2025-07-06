@@ -5,7 +5,6 @@ import utilities.Iterator;
 
 /**
  * MyDLL - A doubly linked list implementation of the ListADT interface.
- *
  * This class uses a chain of MyDLLNode objects to store elements.
  * Each node has references to both the next and previous nodes,
  * allowing for efficient insertion and deletion at any position.
@@ -19,8 +18,8 @@ import utilities.Iterator;
  * Structure: head <-> node1 <-> node2 <-> ... <-> nodeN <-> tail
  *
  * @param <E> the type of elements stored in this list
- * @author Your Group Name
- * @version 1.0
+ *  @author Rhailyn Cona, Komalpreet Kaur, Anne Marie Ala, Abel Fekadu
+ *  @version 1, July 5, 2025.
  */
 public class MyDLL<E> implements ListADT<E> {
 

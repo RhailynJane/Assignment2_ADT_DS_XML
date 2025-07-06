@@ -1,4 +1,4 @@
-package unitTests;
+package test.unitTests;
 
 import static org.junit.Assert.*;
 
@@ -13,8 +13,8 @@ import implementations.MyDLL;
 import utilities.Iterator;
 
 /**
- * @author kitty, maryam
- * @version 3.2 Aug. 28, 2024  
+ *  @author Rhailyn Cona, Komalpreet Kaur, Anne Marie Ala, Abel Fekadu
+ *  @version 1, July 5, 2025.
  * Class Description:
  * Test for the array-based implementation of the ListADT defined in the CPRG304
  * Assignment 2.

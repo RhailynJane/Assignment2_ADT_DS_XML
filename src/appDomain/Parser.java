@@ -11,7 +11,7 @@ import java.util.Scanner;
  * Usage: java appDomain.Parser [filename]
  * If no filename is provided, the program will prompt for one.
  *
- * @author Your Group Name
+ * @author Rhailyn Cona, Komalpreet Kaur, Anne Marie Ala, Abel Fekadu
  * @version 1.0
  */
 public class Parser {

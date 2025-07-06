@@ -1,298 +1,262 @@
 package implementations;
 
-import utilities.StackADT;
-import implementations.MyArrayList;
-import java.util.EmptyStackException;
+import exceptions.EmptyStackException;
+import utilities.Iterator;
 
 /**
- * MyStack - Stack Implementation using MyArrayList
- *
- * A Last-In-First-Out (LIFO) data structure where elements are added
- * and removed from the same end (the "top" of the stack).
- *
- * Uses MyArrayList internally because:
- * - Stacks only add/remove from one end
- * - Array-based storage provides O(1) push/pop operations
- * - Good cache locality for sequential access
- *
- * Stack Operations:
- * - push(): Add element to top
- * - pop(): Remove and return top element
- * - peek(): View top element without removing
- * - isEmpty(): Check if stack is empty
- * - size(): Get number of elements
- *
- * Visual: [bottom] → [element1] → [element2] → [TOP]
- *         Index 0      Index 1      Index 2    ← push/pop here
- *
- * @param <E> the type of elements stored in this stack
+ * ArrayList-based implementation of the Stack Abstract Data Type (ADT).
+ * Uses a dynamic array (MyArrayList) to store elements.
+ *  @author Rhailyn Cona, Komalpreet Kaur, Anne Marie Ala, Abel Fekadu
+ *  @version 1, July 5, 2025.
+ * @param <E> the type of elements held in this stack
  */
-public class MyStack<E> implements StackADT<E> {
+public class MyStack<E> implements Cloneable {
 
-    // Internal storage using MyArrayList
+    // Internal storage for stack elements
     private MyArrayList<E> list;
 
     /**
-     * Default constructor - creates empty stack with default capacity
+     * Creates an empty stack.
      */
     public MyStack() {
         list = new MyArrayList<>();
     }
 
     /**
-     * Constructor with initial capacity
-     * @param initialCapacity the initial capacity of the internal array
-     * @throws IllegalArgumentException if initialCapacity is negative
-     */
-    public MyStack(int initialCapacity) throws IllegalArgumentException {
-        if (initialCapacity < 0) {
-            throw new IllegalArgumentException("Initial capacity cannot be negative: " + initialCapacity);
-        }
-        list = new MyArrayList<>(initialCapacity);
-    }
-
-    /**
-     * Pushes an element onto the top of the stack
-     * Time Complexity: O(1) amortized
+     * Adds an element to the top of the stack.
      *
-     * @param element the element to push
+     * @param element element to add
      * @throws NullPointerException if element is null
      */
-    @Override
-    public void push(E element) throws NullPointerException {
+    public void push(E element) {
         if (element == null) {
-            throw new NullPointerException("Cannot push null element onto stack");
+            throw new NullPointerException("Cannot push null element");
         }
-        list.add(element); // Add to end of list (top of stack)
+        list.add(element);
     }
 
     /**
-     * Removes and returns the element at the top of the stack
-     * Time Complexity: O(1)
+     * Removes and returns the top element of the stack.
      *
-     * @return the element at the top of the stack
+     * @return top element
      * @throws EmptyStackException if stack is empty
      */
-    @Override
-    public E pop() throws EmptyStackException {
+    public E pop() {
         if (isEmpty()) {
             throw new EmptyStackException();
         }
-        return list.remove(list.size() - 1); // Remove from end (top of stack)
+        return list.remove(list.size() - 1);
     }
 
     /**
-     * Returns the element at the top of the stack without removing it
-     * Time Complexity: O(1)
+     * Returns the top element without removing it.
      *
-     * @return the element at the top of the stack
+     * @return top element
      * @throws EmptyStackException if stack is empty
      */
-    @Override
-    public E peek() throws EmptyStackException {
+    public E peek() {
         if (isEmpty()) {
             throw new EmptyStackException();
         }
-        return list.get(list.size() - 1); // Get from end (top of stack)
+        return list.get(list.size() - 1);
     }
 
     /**
-     * Removes all elements from the stack
-     * Time Complexity: O(1)
-     */
-    @Override
-    public void clear() {
-        list.clear();
-    }
-
-    /**
-     * Checks if the stack is empty
-     * Time Complexity: O(1)
+     * Returns true if the stack contains no elements.
      *
-     * @return true if stack contains no elements
+     * @return true if empty
      */
-    @Override
     public boolean isEmpty() {
-        return list.isEmpty();
+        return list.size() == 0;
     }
 
     /**
-     * Returns the number of elements in the stack
-     * Time Complexity: O(1)
+     * Returns the number of elements in the stack.
      *
-     * @return the number of elements
+     * @return stack size
      */
-    @Override
     public int size() {
         return list.size();
     }
 
     /**
-     * Returns an array containing all elements in the stack.
-     * The top element of the stack is at index 0 of the returned array.
-     * Note: This differs from the internal storage order for interface compliance.
-     *
-     * @return array with top element at index 0
+     * Removes all elements from the stack.
      */
-    @Override
+    public void clear() {
+        list.clear();
+    }
+
+    /**
+     * Returns true if the stack contains the specified element.
+     *
+     * @param element element to check
+     * @return true if stack contains element
+     * @throws NullPointerException if element is null
+     */
+    public boolean contains(E element) {
+        if (element == null) {
+            throw new NullPointerException("Cannot check contains for null");
+        }
+        return list.contains(element);
+    }
+
+    /**
+     * Returns an iterator over the elements from top to bottom.
+     *
+     * @return iterator
+     */
+    public Iterator<E> iterator() {
+        // Return a custom iterator that iterates backwards over list (top first)
+        return new Iterator<E>() {
+            private int current = list.size() - 1;
+
+            @Override
+            public boolean hasNext() {
+                return current >= 0;
+            }
+
+            @Override
+            public E next() {
+                if (!hasNext()) {
+                    throw new java.util.NoSuchElementException();
+                }
+                return list.get(current--);
+            }
+        };
+    }
+
+    /**
+     * Returns an Object array containing elements from top to bottom.
+     *
+     * @return array of elements
+     */
     public Object[] toArray() {
-        Object[] result = new Object[list.size()];
-        // Reverse order: top element goes to index 0
-        for (int i = 0; i < list.size(); i++) {
-            result[i] = list.get(list.size() - 1 - i);
+        Object[] arr = new Object[size()];
+        for (int i = 0; i < size(); i++) {
+            arr[i] = list.get(size() - 1 - i);
         }
-        return result;
+        return arr;
     }
 
     /**
-     * Converts stack to typed array with top element at index 0
+     * Returns an array containing all elements from top to bottom.
+     * If passed array is large enough, fills it and returns it.
+     * Else creates new array.
      *
-     * @param holder array to fill (must be correct size)
-     * @return filled array
-     * @throws NullPointerException if holder is null
+     * @param a array to store elements
+     * @return array containing all elements
+     * @throws NullPointerException if array is null
      */
-    public E[] toArray(E[] holder) throws NullPointerException {
-        if (holder == null) {
-            throw new NullPointerException("Holder array cannot be null");
+    @SuppressWarnings("unchecked")
+    public E[] toArray(E[] a) {
+        if (a == null) {
+            throw new NullPointerException("Array is null");
         }
 
-        // Reverse order: top element goes to index 0
-        for (int i = 0; i < Math.min(holder.length, list.size()); i++) {
-            holder[i] = list.get(list.size() - 1 - i);
+        int size = size();
+        if (a.length < size) {
+            a = (E[]) java.lang.reflect.Array.newInstance(
+                    a.getClass().getComponentType(), size);
         }
-        return holder;
+        for (int i = 0; i < size; i++) {
+            a[i] = list.get(size - 1 - i);
+        }
+        if (a.length > size) {
+            a[size] = null; // null-terminate if array larger than needed
+        }
+        return a;
     }
 
     /**
-     * Searches for an element in the stack
-     * Returns the 1-based position from the top of the stack
+     * Returns the 1-based position from the top of the stack where the element
+     * is located; returns -1 if not found.
      *
-     * @param target element to search for
-     * @return 1-based position from top, or -1 if not found
-     * @throws NullPointerException if target is null
+     * @param element element to search
+     * @return position from top (1-based), or -1 if not found
      */
-    public int search(E target) throws NullPointerException {
-        if (target == null) {
-            throw new NullPointerException("Cannot search for null element");
+    public int search(E element) {
+        if (element == null) {
+            return -1;
         }
-
-        // Search from top to bottom (end to beginning of list)
-        for (int i = list.size() - 1; i >= 0; i--) {
-            if (list.get(i).equals(target)) {
-                // Return 1-based position from top
-                return list.size() - i;
+        // Search from top (end of list) to bottom (start)
+        for (int i = list.size() - 1, pos = 1; i >= 0; i--, pos++) {
+            if (element.equals(list.get(i))) {
+                return pos;
             }
         }
-        return -1; // Not found
+        return -1;
     }
 
     /**
-     * Checks if stack contains the specified element
+     * Returns true if this stack equals another stack (same elements in order).
      *
-     * @param target element to search for
-     * @return true if element is found
-     * @throws NullPointerException if target is null
+     * @param obj other object
+     * @return true if equal
      */
-    public boolean contains(E target) throws NullPointerException {
-        if (target == null) {
-            throw new NullPointerException("Cannot search for null element");
+    @Override
+    @SuppressWarnings("unchecked")
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof MyStack)) return false;
+
+        MyStack<E> other = (MyStack<E>) obj;
+
+        if (this.size() != other.size()) return false;
+
+        for (int i = 0; i < size(); i++) {
+            E e1 = this.list.get(i);
+            E e2 = other.list.get(i);
+            if (e1 == null ? e2 != null : !e1.equals(e2)) {
+                return false;
+            }
         }
-        return list.contains(target);
+        return true;
     }
 
     /**
-     * Creates a copy of this stack
-     * The copy is independent of the original
-     *
-     * @return a new stack with the same elements
-     */
-    public MyStack<E> clone() {
-        MyStack<E> copy = new MyStack<>();
-        // Add elements in same order (bottom to top)
-        for (int i = 0; i < list.size(); i++) {
-            copy.push(list.get(i));
-        }
-        return copy;
-    }
-
-    /**
-     * String representation showing stack from bottom to top
-     * Format: [bottom, ..., top] with top indicator
+     * Returns a string representation of the stack from bottom to top.
      *
      * @return string representation
      */
     @Override
     public String toString() {
-        if (isEmpty()) {
-            return "Stack: [] ← top";
-        }
+        if (isEmpty()) return "[]";
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("Stack: [");
-
-        for (int i = 0; i < list.size(); i++) {
+        StringBuilder sb = new StringBuilder("[");
+        for (int i = 0; i < size(); i++) {
             sb.append(list.get(i));
-            if (i < list.size() - 1) {
-                sb.append(", ");
-            }
+            if (i < size() - 1) sb.append(", ");
         }
-
-        sb.append("] ← top");
+        sb.append("]");
         return sb.toString();
     }
 
     /**
-     * Detailed string showing stack structure vertically
-     * Useful for visualizing stack operations
+     * Returns a deep copy of this stack.
      *
-     * @return vertical representation
+     * @return cloned stack
      */
-    public String toVerticalString() {
-        if (isEmpty()) {
-            return "Stack: (empty)\n  ← top";
+    @Override
+    public MyStack<E> clone() {
+        try {
+            // shallow copy of MyStack
+            MyStack<E> copy = (MyStack<E>) super.clone();
+            // clone the internal list as well for deep copy
+            copy.list = this.list.clone();
+            return copy;
+        } catch (CloneNotSupportedException e) {
+            // Should never happen because we implement Cloneable
+            throw new RuntimeException("Clone not supported", e);
         }
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("Stack:\n");
-
-        // Show from top to bottom
-        for (int i = list.size() - 1; i >= 0; i--) {
-            if (i == list.size() - 1) {
-                sb.append("  ").append(list.get(i)).append(" ← top\n");
-            } else {
-                sb.append("  ").append(list.get(i)).append("\n");
-            }
-        }
-
-        return sb.toString();
     }
 
     /**
-     * Equals method - compares stack contents
-     * Two stacks are equal if they have the same elements in the same order
+     * Returns false because this stack has no fixed size limit and cannot overflow.
      *
-     * @param obj object to compare with
-     * @return true if stacks are equal
+     * @return false always
      */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-
-        @SuppressWarnings("unchecked")
-        MyStack<E> other = (MyStack<E>) obj;
-
-        return list.equals(other.list);
+    public boolean stackOverflow() {
+        return false;
     }
 
-    /**
-     * Hash code based on stack contents
-     *
-     * @return hash code
-     */
-    @Override
-    public int hashCode() {
-        return list.hashCode();
-    }
 }

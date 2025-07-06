@@ -4,7 +4,7 @@ package exceptions;
  * Exception thrown when attempting to perform operations on an empty queue
  * that require the queue to contain at least one element.
  *
- * @author Your Group Name
+ * @author Rhailyn Cona, Komalpreet Kaur, Anne Marie Ala, Abel Fekadu
  * @version 1.0
  */
 public class EmptyQueueException extends RuntimeException {

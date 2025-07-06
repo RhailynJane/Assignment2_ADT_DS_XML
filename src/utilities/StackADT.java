@@ -1,5 +1,7 @@
 package utilities;
 
+import exceptions.EmptyStackException;
+
 /**
  * Stack Abstract Data Type (ADT) Interface
  *

@@ -1,27 +1,27 @@
 package appDomain;
 
-import implementations.MyQueue;
-import utilities.QueueADT;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 
 /**
  * XML Parser that validates the structure of XML files by checking
  * that all opening tags have corresponding closing tags in the correct order.
- * Uses a queue-based approach to track and validate XML tag pairs.
+ * Uses a stack-based approach to track and validate XML tag pairs.
  *
- * @author Your Group Name
- * @version 1.0
+ * @author Rhailyn Cona, Komalpreet Kaur, Anne Marie Ala, Abel Fekadu
+ * @version 1.1
  */
 public class XMLParser {
 
     /**
-     * Queue to store opening XML tags for validation
+     * Stack to store opening XML tags for validation
      */
-    private QueueADT<String> tagQueue;
+    private Deque<String> tagStack;
 
     /**
      * List to store any errors found during parsing
@@ -34,10 +34,10 @@ public class XMLParser {
     private int currentLine;
 
     /**
-     * Constructs a new XMLParser with an empty queue and error list.
+     * Constructs a new XMLParser with an empty stack and error list.
      */
     public XMLParser() {
-        this.tagQueue = new MyQueue<>();
+        this.tagStack = new ArrayDeque<>();
         this.errors = new ArrayList<>();
         this.currentLine = 0;
     }
@@ -51,7 +51,7 @@ public class XMLParser {
      */
     public boolean parseFile(String filename) throws IOException {
         errors.clear();
-        tagQueue.clear();
+        tagStack.clear();
         currentLine = 0;
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
@@ -63,9 +63,9 @@ public class XMLParser {
             }
 
             // Check if there are any unclosed tags remaining
-            if (!tagQueue.isEmpty()) {
-                while (!tagQueue.isEmpty()) {
-                    String unclosedTag = tagQueue.dequeue();
+            if (!tagStack.isEmpty()) {
+                while (!tagStack.isEmpty()) {
+                    String unclosedTag = tagStack.pop();
                     errors.add("Error: Unclosed tag <" + unclosedTag + ">");
                 }
             }
@@ -129,7 +129,7 @@ public class XMLParser {
 
         // Check for self-closing tag
         if (tagContent.endsWith("/")) {
-            // Self-closing tag - no need to add to queue
+            // Self-closing tag - no need to add to stack
             return;
         }
 
@@ -141,7 +141,7 @@ public class XMLParser {
             // Opening tag
             String openingTagName = extractTagName(tagContent);
             if (openingTagName != null && !openingTagName.isEmpty()) {
-                tagQueue.enqueue(openingTagName);
+                tagStack.push(openingTagName);
             }
         }
     }
@@ -152,13 +152,13 @@ public class XMLParser {
      * @param closingTagName the name of the closing tag
      */
     private void handleClosingTag(String closingTagName) {
-        if (tagQueue.isEmpty()) {
+        if (tagStack.isEmpty()) {
             errors.add("Line " + currentLine + ": Closing tag </" + closingTagName +
                     "> found without matching opening tag");
             return;
         }
 
-        String expectedTag = tagQueue.dequeue();
+        String expectedTag = tagStack.pop();
         if (!expectedTag.equals(closingTagName)) {
             errors.add("Line " + currentLine + ": Closing tag </" + closingTagName +
                     "> does not match opening tag <" + expectedTag + ">");
@@ -204,15 +204,6 @@ public class XMLParser {
     }
 
     /**
-     * Returns the current state of the tag queue (for debugging).
-     *
-     * @return array of tags currently in the queue
-     */
-    public Object[] getCurrentTags() {
-        return tagQueue.toArray();
-    }
-
-    /**
      * Prints all errors to the console.
      */
     public void printErrors() {
@@ -224,23 +215,5 @@ public class XMLParser {
                 System.out.println("  " + error);
             }
         }
-    }
-
-    /**
-     * Returns a formatted string of all errors.
-     *
-     * @return formatted error report
-     */
-    public String getErrorReport() {
-        if (errors.isEmpty()) {
-            return "XML is valid - no errors found.";
-        }
-
-        StringBuilder report = new StringBuilder();
-        report.append("XML Validation Errors:\n");
-        for (int i = 0; i < errors.size(); i++) {
-            report.append((i + 1)).append(". ").append(errors.get(i)).append("\n");
-        }
-        return report.toString();
     }
 }

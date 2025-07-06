@@ -1,17 +1,18 @@
 package implementations;
 
+import exceptions.EmptyQueueException;
 import utilities.QueueADT;
-import java.util.Iterator;
+import utilities.Iterator; // Your custom Iterator interface
+
 import java.util.NoSuchElementException;
 
 /**
  * Array-based implementation of the Queue Abstract Data Type (ADT).
  * This implementation uses a circular array to efficiently manage space
  * and provides O(1) enqueue and dequeue operations (amortized).
- *
+ *  @author Rhailyn Cona, Komalpreet Kaur, Anne Marie Ala, Abel Fekadu
+ *  @version 1, July 5, 2025.
  * @param <E> the type of elements stored in this queue
- * @author Your Group Name
- * @version 1.0
  */
 public class MyQueue<E> implements QueueADT<E> {
 
@@ -26,7 +27,7 @@ public class MyQueue<E> implements QueueADT<E> {
     private E[] queue;
 
     /**
-     * Index of the front element
+     * Index of the front element in the queue
      */
     private int front;
 
@@ -68,13 +69,19 @@ public class MyQueue<E> implements QueueADT<E> {
         size = 0;
     }
 
+    /**
+     * Adds an element to the rear (back) of the queue.
+     * Resizes array if necessary.
+     *
+     * @param element element to add
+     * @throws NullPointerException if element is null
+     */
     @Override
     public void enqueue(E element) throws NullPointerException {
         if (element == null) {
             throw new NullPointerException("Cannot enqueue null element");
         }
 
-        // Check if we need to resize the array
         if (size == queue.length) {
             resize();
         }
@@ -84,6 +91,12 @@ public class MyQueue<E> implements QueueADT<E> {
         size++;
     }
 
+    /**
+     * Removes and returns the element at the front of the queue.
+     *
+     * @return the front element
+     * @throws EmptyQueueException if queue is empty
+     */
     @Override
     public E dequeue() throws EmptyQueueException {
         if (isEmpty()) {
@@ -91,35 +104,52 @@ public class MyQueue<E> implements QueueADT<E> {
         }
 
         E element = queue[front];
-        queue[front] = null; // Help GC
+        queue[front] = null; // Help garbage collection
         front = (front + 1) % queue.length;
         size--;
 
         return element;
     }
 
+    /**
+     * Returns the element at the front without removing it.
+     *
+     * @return the front element
+     * @throws EmptyQueueException if queue is empty
+     */
     @Override
     public E peek() throws EmptyQueueException {
         if (isEmpty()) {
             throw new EmptyQueueException("Cannot peek at empty queue");
         }
-
         return queue[front];
     }
 
+    /**
+     * Checks if the queue is empty.
+     *
+     * @return true if empty, false otherwise
+     */
     @Override
     public boolean isEmpty() {
         return size == 0;
     }
 
+    /**
+     * Returns the number of elements in the queue.
+     *
+     * @return number of elements
+     */
     @Override
     public int size() {
         return size;
     }
 
+    /**
+     * Removes all elements from the queue.
+     */
     @Override
     public void clear() {
-        // Help garbage collection
         for (int i = 0; i < queue.length; i++) {
             queue[i] = null;
         }
@@ -128,69 +158,155 @@ public class MyQueue<E> implements QueueADT<E> {
         size = 0;
     }
 
+    /**
+     * Removes all elements from the queue.
+     * Same as clear().
+     */
+    @Override
+    public void dequeueAll() {
+        clear();
+    }
+
+    /**
+     * Returns an array containing all elements in the queue.
+     * The front element is at index 0 of the array.
+     *
+     * @return array of queue elements
+     */
     @Override
     public Object[] toArray() {
         Object[] result = new Object[size];
-
         for (int i = 0; i < size; i++) {
             result[i] = queue[(front + i) % queue.length];
         }
-
         return result;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
+    /**
+     * Converts the queue to an array of the same runtime type as the specified array.
+     * The front element is at index 0.
+     *
+     * @param holder the array into which the elements of the queue are to be stored,
+     *               if it is big enough; otherwise, a new array of the same runtime type is allocated.
+     * @return an array containing the elements of the queue
+     * @throws NullPointerException if the holder array is null
+     */
+    @SuppressWarnings("unchecked")
+    public E[] toArray(E[] holder) {
+        if (holder == null) {
+            throw new NullPointerException("Holder array cannot be null");
         }
 
-        if (obj == null || !(obj instanceof QueueADT)) {
-            return false;
+        if (holder.length < size) {
+            // Create a new array of the same runtime type as holder with size equal to queue size
+            holder = (E[]) java.lang.reflect.Array.newInstance(holder.getClass().getComponentType(), size);
         }
+
+        // Copy elements from queue in order
+        for (int i = 0; i < size; i++) {
+            holder[i] = queue[(front + i) % queue.length];
+        }
+
+        if (holder.length > size) {
+            holder[size] = null; // null-terminate if bigger than needed
+        }
+
+        return holder;
+    }
+
+    /**
+     * Compares this queue with another object for equality.
+     * Two queues are equal if they have the same elements in the same order.
+     *
+     * @param obj the object to compare
+     * @return true if equal, false otherwise
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || !(obj instanceof QueueADT)) return false;
 
         @SuppressWarnings("unchecked")
         QueueADT<E> other = (QueueADT<E>) obj;
 
-        if (this.size() != other.size()) {
-            return false;
-        }
+        if (this.size() != other.size()) return false;
 
-        // Compare elements using iterators
         Iterator<E> thisIter = this.iterator();
         Iterator<E> otherIter = other.iterator();
 
         while (thisIter.hasNext() && otherIter.hasNext()) {
-            E thisElement = thisIter.next();
-            E otherElement = otherIter.next();
-
-            if (thisElement == null) {
-                if (otherElement != null) {
-                    return false;
-                }
-            } else if (!thisElement.equals(otherElement)) {
+            E e1 = thisIter.next();
+            E e2 = otherIter.next();
+            if (e1 == null ? e2 != null : !e1.equals(e2)) {
                 return false;
             }
         }
-
         return true;
     }
 
+    /**
+     * Returns a custom iterator over this queue.
+     * Traverses elements from front to rear.
+     *
+     * @return an iterator for this queue
+     */
     @Override
     public Iterator<E> iterator() {
         return new QueueIterator();
     }
 
     /**
-     * Resizes the internal array when it becomes full.
-     * Doubles the capacity and reorganizes elements to start from index 0.
+     * Custom iterator implementation for MyQueue.
+     */
+    private class QueueIterator implements Iterator<E> {
+        private int current = front;
+        private int remaining = size;
+
+        @Override
+        public boolean hasNext() {
+            return remaining > 0;
+        }
+
+        @Override
+        public E next() throws NoSuchElementException {
+            if (!hasNext()) {
+                throw new NoSuchElementException("No more elements in queue");
+            }
+            E element = queue[current];
+            current = (current + 1) % queue.length;
+            remaining--;
+            return element;
+        }
+    }
+
+    /**
+     * Returns a string representation of the queue.
+     * Elements are listed from front to rear.
+     *
+     * @return string representation of queue
+     */
+    @Override
+    public String toString() {
+        if (isEmpty()) return "[]";
+
+        StringBuilder sb = new StringBuilder("[");
+        for (int i = 0; i < size; i++) {
+            sb.append(queue[(front + i) % queue.length]);
+            if (i < size - 1) sb.append(", ");
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+
+    /**
+     * Resizes the internal array when full.
+     * Doubles the capacity and rearranges elements starting at index 0.
      */
     @SuppressWarnings("unchecked")
     private void resize() {
         int newCapacity = queue.length * 2;
         E[] newQueue = (E[]) new Object[newCapacity];
 
-        // Copy elements in order from front to rear
         for (int i = 0; i < size; i++) {
             newQueue[i] = queue[(front + i) % queue.length];
         }
@@ -201,65 +317,55 @@ public class MyQueue<E> implements QueueADT<E> {
     }
 
     /**
-     * Iterator implementation for the queue.
-     * Traverses elements from front to rear.
+     * Returns true if the queue is full.
+     * Since this queue resizes dynamically, this always returns false.
+     *
+     * @return false always
      */
-    private class QueueIterator implements Iterator<E> {
-        private int current;
-        private int remaining;
-
-        public QueueIterator() {
-            current = front;
-            remaining = size;
-        }
-
-        @Override
-        public boolean hasNext() {
-            return remaining > 0;
-        }
-
-        @Override
-        public E next() {
-            if (!hasNext()) {
-                throw new NoSuchElementException("No more elements in queue");
-            }
-
-            E element = queue[current];
-            current = (current + 1) % queue.length;
-            remaining--;
-
-            return element;
-        }
-
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException("Remove not supported by queue iterator");
-        }
+    public boolean isFull() {
+        return false;
     }
 
     /**
-     * Returns a string representation of the queue.
-     * Elements are listed from front to rear.
+     * Returns true if the queue contains the specified element.
+     * Uses equals() to check for equality.
      *
-     * @return string representation of the queue
+     * @param target the element to search for
+     * @return true if the element is found, false otherwise
      */
-    @Override
-    public String toString() {
-        if (isEmpty()) {
-            return "[]";
+    public boolean contains(E target) {
+        if (target == null) {
+            throw new NullPointerException("Cannot search for null element");
         }
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("[");
-
         for (int i = 0; i < size; i++) {
-            sb.append(queue[(front + i) % queue.length]);
-            if (i < size - 1) {
-                sb.append(", ");
+            E current = queue[(front + i) % queue.length];
+            if (target.equals(current)) {
+                return true;
             }
         }
-
-        sb.append("]");
-        return sb.toString();
+        return false;
     }
+
+    /**
+     * Returns the 1-based position of the element in the queue starting from front.
+     * Returns -1 if the element is not found.
+     *
+     * @param target the element to search for
+     * @return position from front (1-based), or -1 if not found
+     */
+    public int search(E target) {
+        if (target == null) {
+            throw new NullPointerException("Cannot search for null element");
+        }
+        for (int i = 0; i < size; i++) {
+            E current = queue[(front + i) % queue.length];
+            if (target.equals(current)) {
+                return i + 1;
+            }
+        }
+        return -1;
+    }
+
+
+
 }

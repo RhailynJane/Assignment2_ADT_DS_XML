@@ -12,8 +12,8 @@ package implementations;
  * in the linked list, as well as bidirectional traversal.
  *
  * @param <E> the type of element stored in this node
- * @author Your Group Name
- * @version 1.0
+ *  @author Rhailyn Cona, Komalpreet Kaur, Anne Marie Ala, Abel Fekadu
+ *  @version 1, July 5, 2025.
  */
 public class MyDLLNode<E> {
 

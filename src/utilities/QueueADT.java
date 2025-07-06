@@ -1,5 +1,7 @@
 package utilities;
 
+import exceptions.EmptyQueueException;
+
 /**
  * Queue Abstract Data Type (ADT) Interface
  *
@@ -11,94 +13,77 @@ package utilities;
  * first person to be served and leave the line.
  *
  * @param <E> the type of elements stored in this queue
- * @author Your Group Name
- * @version 1.0
  */
 public interface QueueADT<E> {
 
     /**
      * Adds an element to the rear (back) of the queue.
-     * This operation is also called "enqueue".
      *
-     * @param element the element to be added to the rear of the queue
-     * @throws NullPointerException if the specified element is null
-     * @post the element is added to the rear of the queue
-     * @post the size of the queue increases by 1
+     * @param element the element to be added
+     * @throws NullPointerException if element is null
      */
     void enqueue(E element) throws NullPointerException;
 
     /**
      * Removes and returns the element at the front of the queue.
-     * This operation is also called "dequeue".
      *
-     * @return the element that was at the front of the queue
+     * @return the front element
      * @throws EmptyQueueException if the queue is empty
-     * @post the front element is removed from the queue
-     * @post the size of the queue decreases by 1
      */
     E dequeue() throws EmptyQueueException;
 
     /**
-     * Returns the element at the front of the queue without removing it.
-     * This operation is also called "peek" or "front".
+     * Returns the element at the front without removing it.
      *
-     * @return the element at the front of the queue
+     * @return the front element
      * @throws EmptyQueueException if the queue is empty
-     * @post the queue remains unchanged
      */
     E peek() throws EmptyQueueException;
 
     /**
-     * Tests if the queue is empty.
+     * Checks if the queue is empty.
      *
-     * @return true if the queue contains no elements, false otherwise
-     * @post the queue remains unchanged
+     * @return true if empty, false otherwise
      */
     boolean isEmpty();
 
     /**
      * Returns the number of elements in the queue.
      *
-     * @return the number of elements currently in the queue
-     * @post the queue remains unchanged
+     * @return the size of the queue
      */
     int size();
 
     /**
      * Removes all elements from the queue.
-     * After this operation, the queue will be empty.
-     *
-     * @post the queue is empty
-     * @post size() returns 0
-     * @post isEmpty() returns true
      */
     void clear();
 
     /**
-     * Returns an array containing all elements in the queue.
-     * The front element of the queue is at index 0 of the returned array.
+     * Returns an array containing all elements, front at index 0.
      *
-     * @return an array containing all elements in the queue, with the front element first
-     * @post the queue remains unchanged
+     * @return array of elements
      */
     Object[] toArray();
 
     /**
-     * Compares the specified object with this queue for equality.
-     * Two queues are equal if they contain the same elements in the same order.
+     * Compares this queue with another object for equality.
      *
-     * @param obj the object to be compared for equality with this queue
-     * @return true if the specified object is equal to this queue, false otherwise
-     * @post the queue remains unchanged
+     * @param obj the object to compare
+     * @return true if equal
      */
     boolean equals(Object obj);
 
     /**
-     * Returns an iterator over the elements in this queue.
-     * The iterator will traverse the queue from front to rear.
+     * Returns an iterator over the elements in the queue.
      *
-     * @return an iterator over the elements in this queue
-     * @post the queue remains unchanged
+     * @return an iterator from front to rear
      */
-    java.util.Iterator<E> iterator();
+    utilities.Iterator<E> iterator();
+
+    /**
+     * Removes all elements from the queue.
+     * Same as clear().
+     */
+    void dequeueAll();
 }

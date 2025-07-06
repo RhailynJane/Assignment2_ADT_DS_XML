@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+    <book>
+    <title>Refactoring</title>
+    <author>Martin Fowler</author>
+    <!-- Missing closing tag for book -->
+    <book>
+        <title>The Pragmatic Programmer</title>
+        <author>Andrew Hunt</author>
+    </book
+</library>
