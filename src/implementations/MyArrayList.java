@@ -1,113 +1,69 @@
 package implementations;
 
-import utilities.ListADT;
 import utilities.Iterator;
+import utilities.ListADT;
+import java.util.NoSuchElementException;
 
 /**
- * MyArrayList - A resizable array implementation of the ListADT interface.
- *
- * This class uses an underlying array to store elements. When the array becomes
- * full, it automatically resizes to accommodate more elements.
- *
- * Key Features:
- * - Dynamic resizing (grows automatically when needed)
- * - Index-based access (fast random access)
- * - Maintains insertion order
- *
- * @param <E> the type of elements stored in this list
- * @author Your Group Name
- * @version 1.0
+ *  @author Rhailyn Cona, Komalpreet Kaur, Anne Marie Ala, Abel Fekadu Samuel Braun
+ *  @version 1, July 5, 2025.
+ * MyArrayList: Array-backed implementation of ListADT interface.
+ * @param <E> generic element type
  */
-public class MyArrayList<E> implements ListADT<E> {
+public class MyArrayList<E> implements ListADT<E>, Cloneable {
 
-    /**
-     * Default initial capacity of the array
-     */
     private static final int DEFAULT_CAPACITY = 10;
-
-    /**
-     * The array that stores the elements
-     */
     private E[] array;
-
-    /**
-     * The current number of elements in the list
-     */
     private int size;
 
-    /**
-     * Constructs an empty list with default initial capacity.
-     */
     @SuppressWarnings("unchecked")
     public MyArrayList() {
-        // Create array of Object type and cast to E[]
-        // This is necessary because we can't create arrays of generic types
         array = (E[]) new Object[DEFAULT_CAPACITY];
         size = 0;
     }
 
-    /**
-     * Constructs an empty list with specified initial capacity.
-     *
-     * @param initialCapacity the initial capacity of the list
-     * @throws IllegalArgumentException if initialCapacity is negative
-     */
-    @SuppressWarnings("unchecked")
-    public MyArrayList(int initialCapacity) {
-        if (initialCapacity < 0) {
-            throw new IllegalArgumentException("Initial capacity cannot be negative: " + initialCapacity);
+    @Override
+    public boolean add(E element) {
+        if (element == null) {
+            throw new NullPointerException("Cannot add null element.");
         }
-        array = (E[]) new Object[initialCapacity];
-        size = 0;
-    }
-
-    /**
-     * Ensures that the array has enough capacity to hold more elements.
-     * If the array is full, it doubles the capacity.
-     */
-    private void ensureCapacity() {
-        if (size >= array.length) {
-            // Double the capacity (or set to 1 if current capacity is 0)
-            int newCapacity = array.length == 0 ? 1 : array.length * 2;
-
-            // Use Arrays.copyOf to create a new larger array
-            array = java.util.Arrays.copyOf(array, newCapacity);
-        }
-    }
-
-    /**
-     * Checks if the given index is valid for accessing elements.
-     *
-     * @param index the index to check
-     * @throws IndexOutOfBoundsException if index is invalid
-     */
-    private void checkIndex(int index) {
-        if (index < 0 || index >= size) {
-            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
-        }
-    }
-
-    /**
-     * Checks if the given index is valid for adding elements.
-     * Valid range is 0 to size (inclusive).
-     *
-     * @param index the index to check
-     * @throws IndexOutOfBoundsException if index is invalid
-     */
-    private void checkIndexForAdd(int index) {
-        if (index < 0 || index > size) {
-            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
-        }
+        ensureCapacity(size + 1);
+        array[size++] = element;
+        return true;
     }
 
     @Override
-    public int size() {
-        return size;
+    public boolean add(int index, E element) {
+        if (element == null) {
+            throw new NullPointerException("Cannot add null element.");
+        }
+        if (index < 0 || index > size) {
+            throw new IndexOutOfBoundsException("Index " + index + " out of bounds.");
+        }
+        ensureCapacity(size + 1);
+        for (int i = size - 1; i >= index; i--) {
+            array[i + 1] = array[i];
+        }
+        array[index] = element;
+        size++;
+        return true;
+    }
+
+    @Override
+    public boolean addAll(ListADT<? extends E> otherList) {
+        if (otherList == null) {
+            throw new NullPointerException("Cannot addAll from null list.");
+        }
+        boolean changed = false;
+        for (int i = 0; i < otherList.size(); i++) {
+            add(otherList.get(i));
+            changed = true;
+        }
+        return changed;
     }
 
     @Override
     public void clear() {
-        // Set all elements to null to help garbage collection
         for (int i = 0; i < size; i++) {
             array[i] = null;
         }
@@ -115,109 +71,58 @@ public class MyArrayList<E> implements ListADT<E> {
     }
 
     @Override
-    public boolean add(int index, E toAdd) throws NullPointerException, IndexOutOfBoundsException {
-        // Check for null element
-        if (toAdd == null) {
-            throw new NullPointerException("Cannot add null element to list");
+    public boolean contains(E element) {
+        if (element == null) {
+            throw new NullPointerException("Cannot search for null element.");
         }
-
-        // Check if index is valid for adding
-        checkIndexForAdd(index);
-
-        // Ensure we have enough capacity
-        ensureCapacity();
-
-        // Shift elements to the right to make room for new element
-        for (int i = size; i > index; i--) {
-            array[i] = array[i - 1];
+        for (int i = 0; i < size; i++) {
+            if (array[i].equals(element)) {
+                return true;
+            }
         }
-
-        // Insert the new element
-        array[index] = toAdd;
-        size++;
-
-        return true;
+        return false;
     }
 
     @Override
-    public boolean add(E toAdd) throws NullPointerException {
-        // Add at the end of the list
-        return add(size, toAdd);
-    }
-
-    @Override
-    public boolean addAll(ListADT<? extends E> toAdd) throws NullPointerException {
-        if (toAdd == null) {
-            throw new NullPointerException("Cannot add null list");
-        }
-
-        // Convert toAdd to array and add each element
-        Object[] elementsToAdd = toAdd.toArray();
-        boolean modified = false;
-
-        for (Object element : elementsToAdd) {
-            @SuppressWarnings("unchecked")
-            E e = (E) element;
-            add(e);
-            modified = true;
-        }
-
-        return modified;
-    }
-
-    @Override
-    public E get(int index) throws IndexOutOfBoundsException {
+    public E get(int index) {
         checkIndex(index);
         return array[index];
     }
 
     @Override
-    public E remove(int index) throws IndexOutOfBoundsException {
+    public E remove(int index) {
         checkIndex(index);
-
-        E removedElement = array[index];
-
-        // Shift elements to the left to fill the gap
+        E removed = array[index];
         for (int i = index; i < size - 1; i++) {
             array[i] = array[i + 1];
         }
-
-        // Clear the last element and decrease size
         array[size - 1] = null;
         size--;
-
-        return removedElement;
+        return removed;
     }
 
     @Override
-    public E remove(E toRemove) throws NullPointerException {
-        if (toRemove == null) {
-            throw new NullPointerException("Cannot remove null element");
+    public E remove(E element) {
+        if (element == null) {
+            throw new NullPointerException("Cannot remove null element.");
         }
-
-        // Find the element and remove it
         for (int i = 0; i < size; i++) {
-            if (toRemove.equals(array[i])) {
+            if (array[i].equals(element)) {
                 return remove(i);
             }
         }
-
-        // Element not found
         return null;
     }
 
     @Override
-    public E set(int index, E toChange) throws NullPointerException, IndexOutOfBoundsException {
-        if (toChange == null) {
-            throw new NullPointerException("Cannot set element to null");
+    public E set(int index, E element) {
+        if (element == null) {
+            throw new NullPointerException("Cannot set null element.");
         }
-
         checkIndex(index);
-
-        E oldElement = array[index];
-        array[index] = toChange;
-
-        return oldElement;
+        E oldValue = array[index];
+        array[index] = element;
+        return oldValue;
     }
 
     @Override
@@ -226,138 +131,85 @@ public class MyArrayList<E> implements ListADT<E> {
     }
 
     @Override
-    public boolean contains(E toFind) throws NullPointerException {
-        if (toFind == null) {
-            throw new NullPointerException("Cannot search for null element");
-        }
-
-        for (int i = 0; i < size; i++) {
-            if (toFind.equals(array[i])) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    @Override
-    public E[] toArray(E[] toHold) throws NullPointerException {
-        if (toHold == null) {
-            throw new NullPointerException("Destination array cannot be null");
-        }
-
-        // If the provided array is too small, create a new one
-        if (toHold.length < size) {
-            @SuppressWarnings("unchecked")
-            E[] newArray = (E[]) java.lang.reflect.Array.newInstance(
-                    toHold.getClass().getComponentType(), size);
-            toHold = newArray;
-        }
-
-        // Copy elements to the destination array
-        for (int i = 0; i < size; i++) {
-            toHold[i] = array[i];
-        }
-
-        // If destination array is larger, set the next element to null
-        if (toHold.length > size) {
-            toHold[size] = null;
-        }
-
-        return toHold;
-    }
-
-    @Override
-    public Object[] toArray() {
-        Object[] result = new Object[size];
-        for (int i = 0; i < size; i++) {
-            result[i] = array[i];
-        }
-        return result;
+    public int size() {
+        return size;
     }
 
     @Override
     public Iterator<E> iterator() {
-        return new ArrayListIterator();
+        return new MyArrayListIterator();
     }
 
-    /**
-     * Iterator implementation for MyArrayList.
-     * Provides a way to traverse the list elements sequentially.
-     */
-    private class ArrayListIterator implements Iterator<E> {
-        /**
-         * Current position in the iteration
-         */
-        private int currentIndex = 0;
+    private class MyArrayListIterator implements Iterator<E> {
+        private int cursor = 0;
 
         @Override
         public boolean hasNext() {
-            return currentIndex < size;
+            return cursor < size;
         }
 
         @Override
-        public E next() throws java.util.NoSuchElementException {
+        public E next() {
             if (!hasNext()) {
-                throw new java.util.NoSuchElementException("No more elements in iteration");
+                throw new NoSuchElementException("No more elements.");
             }
-
-            return array[currentIndex++];
+            return array[cursor++];
         }
     }
 
-    /**
-     * Returns a string representation of this list.
-     * Format: [element1, element2, element3, ...]
-     *
-     * @return a string representation of this list
-     */
+    @SuppressWarnings("unchecked")
     @Override
-    public String toString() {
-        if (isEmpty()) {
-            return "[]";
+    public E[] toArray(E[] inputArray) {
+        if (inputArray == null) {
+            throw new NullPointerException("Input array cannot be null.");
         }
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("[");
-
+        if (inputArray.length < size) {
+            return (E[]) java.util.Arrays.copyOf(array, size, inputArray.getClass());
+        }
         for (int i = 0; i < size; i++) {
-            sb.append(array[i]);
-            if (i < size - 1) {
-                sb.append(", ");
-            }
+            inputArray[i] = array[i];
         }
-
-        sb.append("]");
-        return sb.toString();
+        if (inputArray.length > size) {
+            inputArray[size] = null;
+        }
+        return inputArray;
     }
 
-    /**
-     * Compares this list with another object for equality.
-     * Two lists are equal if they have the same size and contain
-     * the same elements in the same order.
-     *
-     * @param obj the object to compare with
-     * @return true if the lists are equal, false otherwise
-     */
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (!(obj instanceof ListADT)) return false;
+    public Object[] toArray() {
+        Object[] newArray = new Object[size];
+        System.arraycopy(array, 0, newArray, 0, size);
+        return newArray;
+    }
 
-        @SuppressWarnings("unchecked")
-        ListADT<E> other = (ListADT<E>) obj;
-
-        if (this.size() != other.size()) return false;
-
-        Object[] otherArray = other.toArray();
-        for (int i = 0; i < size; i++) {
-            if (!array[i].equals(otherArray[i])) {
-                return false;
+    @SuppressWarnings("unchecked")
+    private void ensureCapacity(int minCapacity) {
+        if (minCapacity > array.length) {
+            int newCapacity = array.length * 2;
+            if (newCapacity < minCapacity) {
+                newCapacity = minCapacity;
             }
+            E[] newArray = (E[]) new Object[newCapacity];
+            System.arraycopy(array, 0, newArray, 0, size);
+            array = newArray;
         }
+    }
 
-        return true;
+    private void checkIndex(int index) {
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException("Index " + index + " out of bounds.");
+        }
+    }
+
+    @Override
+    public MyArrayList<E> clone() {
+        try {
+            MyArrayList<E> copy = (MyArrayList<E>) super.clone();
+            copy.array = java.util.Arrays.copyOf(array, size);
+            // size copied automatically
+            return copy;
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("Clone not supported", e);
+        }
     }
 }

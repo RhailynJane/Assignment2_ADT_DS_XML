@@ -1,4 +1,4 @@
-package unitTests;
+package test.unitTests;
 
 import static org.junit.Assert.*;
 
@@ -13,8 +13,8 @@ import utilities.Iterator;
 import implementations.MyQueue;
 
 /**
- * @author kitty, maryam
- * @version 3.3 Nov 8, 2024  
+ *  @author Rhailyn Cona, Komalpreet Kaur, Anne Marie Ala, Abel Fekadu Samuel Braun
+ *  @version 1, July 5, 2025.
  * Class Description:
  * Test for DLL-based implementation of the QueueADT defined in the CPRG 304
  * Assignment 2.

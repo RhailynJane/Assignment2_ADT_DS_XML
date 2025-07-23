@@ -1,8 +1,8 @@
-package unitTests;
+package test.unitTests;
 
 import static org.junit.Assert.*;
 
-import java.util.EmptyStackException;
+import exceptions.EmptyStackException;
 import java.util.NoSuchElementException;
 
 import org.junit.After;
@@ -13,8 +13,8 @@ import utilities.Iterator;
 import implementations.MyStack;
 
 /**
- * @author kitty, maryam
- * @version 3.2 Aug. 28, 2024   
+ *  @author Rhailyn Cona, Komalpreet Kaur, Anne Marie Ala, Abel Fekadu Samuel Braun
+ *  @version 1, July 5, 2025.
  * Class Description:
  * Test for the Arraylist-based implementation of the StackADT defined in the CPRG 304
  * Assignment 2.

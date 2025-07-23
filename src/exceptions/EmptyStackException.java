@@ -7,7 +7,7 @@ package exceptions;
  * - pop() from an empty stack
  * - peek() at an empty stack
  *
- * @author Your Group Name
+ * @author Rhailyn Cona, Komalpreet Kaur, Anne Marie Ala, Abel Fekadu Samuel Braun
  * @version 1.0
  */
 public class EmptyStackException extends RuntimeException {
