@@ -13,7 +13,7 @@ import implementations.MyDLL;
 import utilities.Iterator;
 
 /**
- *  @author Rhailyn Cona, Komalpreet Kaur, Anne Marie Ala, Abel Fekadu
+ *  @author Rhailyn Cona, Komalpreet Kaur, Anne Marie Ala, Abel Fekadu Samuel Braun
  *  @version 1, July 5, 2025.
  * Class Description:
  * Test for the array-based implementation of the ListADT defined in the CPRG304

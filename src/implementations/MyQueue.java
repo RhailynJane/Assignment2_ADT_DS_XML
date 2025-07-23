@@ -10,7 +10,7 @@ import java.util.NoSuchElementException;
  * Array-based implementation of the Queue Abstract Data Type (ADT).
  * This implementation uses a circular array to efficiently manage space
  * and provides O(1) enqueue and dequeue operations (amortized).
- *  @author Rhailyn Cona, Komalpreet Kaur, Anne Marie Ala, Abel Fekadu
+ *  @author Rhailyn Cona, Komalpreet Kaur, Anne Marie Ala, Abel Fekadu Samuel Braun
  *  @version 1, July 5, 2025.
  * @param <E> the type of elements stored in this queue
  */

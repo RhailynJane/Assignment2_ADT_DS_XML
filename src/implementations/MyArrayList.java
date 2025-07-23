@@ -5,7 +5,7 @@ import utilities.ListADT;
 import java.util.NoSuchElementException;
 
 /**
- *  @author Rhailyn Cona, Komalpreet Kaur, Anne Marie Ala, Abel Fekadu
+ *  @author Rhailyn Cona, Komalpreet Kaur, Anne Marie Ala, Abel Fekadu Samuel Braun
  *  @version 1, July 5, 2025.
  * MyArrayList: Array-backed implementation of ListADT interface.
  * @param <E> generic element type

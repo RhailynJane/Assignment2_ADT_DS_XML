@@ -6,7 +6,7 @@ import utilities.Iterator;
 /**
  * ArrayList-based implementation of the Stack Abstract Data Type (ADT).
  * Uses a dynamic array (MyArrayList) to store elements.
- *  @author Rhailyn Cona, Komalpreet Kaur, Anne Marie Ala, Abel Fekadu
+ *  @author Rhailyn Cona, Komalpreet Kaur, Anne Marie Ala, Abel Fekadu Samuel Braun
  *  @version 1, July 5, 2025.
  * @param <E> the type of elements held in this stack
  */

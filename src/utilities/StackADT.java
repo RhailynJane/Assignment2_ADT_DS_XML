@@ -12,7 +12,7 @@ import exceptions.EmptyStackException;
  * and you can only remove the plate from the top.
  *
  * @param <E> the type of elements stored in this stack
- * @author Your Group Name
+ * @author Rhailyn Cona, Komalpreet Kaur, Anne Marie Ala, Abel Fekadu Samuel Braun
  * @version 1.0
  */
 public interface StackADT<E> {

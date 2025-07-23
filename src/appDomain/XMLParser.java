@@ -13,7 +13,7 @@ import java.util.List;
  * that all opening tags have corresponding closing tags in the correct order.
  * Uses a stack-based approach to track and validate XML tag pairs.
  *
- * @author Rhailyn Cona, Komalpreet Kaur, Anne Marie Ala, Abel Fekadu
+ * @author Rhailyn Cona, Komalpreet Kaur, Anne Marie Ala, Abel Fekadu, Samuel Braun
  * @version 1.1
  */
 public class XMLParser {

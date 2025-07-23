@@ -9,8 +9,6 @@ import exceptions.EmptyQueueException;
  * at one end (called the "rear" or "back") and removed from the other end
  * (called the "front").
  *
- * Think of it like a line of people waiting - the first person in line is the
- * first person to be served and leave the line.
  *
  * @param <E> the type of elements stored in this queue
  */

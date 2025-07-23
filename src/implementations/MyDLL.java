@@ -18,7 +18,7 @@ import utilities.Iterator;
  * Structure: head <-> node1 <-> node2 <-> ... <-> nodeN <-> tail
  *
  * @param <E> the type of elements stored in this list
- *  @author Rhailyn Cona, Komalpreet Kaur, Anne Marie Ala, Abel Fekadu
+ *  @author Rhailyn Cona, Komalpreet Kaur, Anne Marie Ala, Abel Fekadu Samuel Braun
  *  @version 1, July 5, 2025.
  */
 public class MyDLL<E> implements ListADT<E> {
