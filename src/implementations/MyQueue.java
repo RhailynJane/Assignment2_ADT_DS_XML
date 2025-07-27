@@ -2,7 +2,7 @@ package implementations;
 
 import exceptions.EmptyQueueException;
 import utilities.QueueADT;
-import utilities.Iterator; // Your custom Iterator interface
+import utilities.Iterator;
 
 import java.util.NoSuchElementException;
 
@@ -40,6 +40,7 @@ public class MyQueue<E> implements QueueADT<E> {
      * Current number of elements in the queue
      */
     private int size;
+
 
     /**
      * Constructs an empty queue with default capacity.
@@ -110,6 +111,32 @@ public class MyQueue<E> implements QueueADT<E> {
 
         return element;
     }
+    /**
+     * Compares this queue to another QueueADT for equality.
+     * Two queues are equal if they contain the same elements in the same order.
+     *
+     * @param that the QueueADT to compare to
+     * @return true if equal, false otherwise
+     */
+    @Override
+    public boolean equals(QueueADT<E> that) {
+        if (this == that) return true;
+        if (that == null || this.size() != that.size()) return false;
+
+        Iterator<E> thisIter = this.iterator();
+        Iterator<E> thatIter = that.iterator();
+
+        while (thisIter.hasNext() && thatIter.hasNext()) {
+            E e1 = thisIter.next();
+            E e2 = thatIter.next();
+            if (e1 == null ? e2 != null : !e1.equals(e2)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
 
     /**
      * Returns the element at the front without removing it.
@@ -148,7 +175,6 @@ public class MyQueue<E> implements QueueADT<E> {
     /**
      * Removes all elements from the queue.
      */
-    @Override
     public void clear() {
         for (int i = 0; i < queue.length; i++) {
             queue[i] = null;
@@ -214,35 +240,6 @@ public class MyQueue<E> implements QueueADT<E> {
         return holder;
     }
 
-    /**
-     * Compares this queue with another object for equality.
-     * Two queues are equal if they have the same elements in the same order.
-     *
-     * @param obj the object to compare
-     * @return true if equal, false otherwise
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || !(obj instanceof QueueADT)) return false;
-
-        @SuppressWarnings("unchecked")
-        QueueADT<E> other = (QueueADT<E>) obj;
-
-        if (this.size() != other.size()) return false;
-
-        Iterator<E> thisIter = this.iterator();
-        Iterator<E> otherIter = other.iterator();
-
-        while (thisIter.hasNext() && otherIter.hasNext()) {
-            E e1 = thisIter.next();
-            E e2 = otherIter.next();
-            if (e1 == null ? e2 != null : !e1.equals(e2)) {
-                return false;
-            }
-        }
-        return true;
-    }
 
     /**
      * Returns a custom iterator over this queue.

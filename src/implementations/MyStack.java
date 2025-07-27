@@ -2,6 +2,9 @@ package implementations;
 
 import exceptions.EmptyStackException;
 import utilities.Iterator;
+import utilities.StackADT;
+
+import java.io.Serializable;
 
 /**
  * ArrayList-based implementation of the Stack Abstract Data Type (ADT).
@@ -10,15 +13,16 @@ import utilities.Iterator;
  *  @version 1, July 5, 2025.
  * @param <E> the type of elements held in this stack
  */
-public class MyStack<E> implements Cloneable {
+public class MyStack<E> implements StackADT<E>, Cloneable, Serializable {
 
     // Internal storage for stack elements
     private MyArrayList<E> list;
 
     /**
-     * Creates an empty stack.
+     * Creates an empty stack using a dynamic array.
      */
     public MyStack() {
+
         list = new MyArrayList<>();
     }
 
@@ -28,12 +32,14 @@ public class MyStack<E> implements Cloneable {
      * @param element element to add
      * @throws NullPointerException if element is null
      */
-    public void push(E element) {
+    @Override
+    public void push(E element) throws NullPointerException {
         if (element == null) {
             throw new NullPointerException("Cannot push null element");
         }
         list.add(element);
     }
+
 
     /**
      * Removes and returns the top element of the stack.
@@ -41,6 +47,7 @@ public class MyStack<E> implements Cloneable {
      * @return top element
      * @throws EmptyStackException if stack is empty
      */
+    @Override
     public E pop() {
         if (isEmpty()) {
             throw new EmptyStackException();
@@ -54,6 +61,7 @@ public class MyStack<E> implements Cloneable {
      * @return top element
      * @throws EmptyStackException if stack is empty
      */
+    @Override
     public E peek() {
         if (isEmpty()) {
             throw new EmptyStackException();
@@ -66,6 +74,7 @@ public class MyStack<E> implements Cloneable {
      *
      * @return true if empty
      */
+    @Override
     public boolean isEmpty() {
         return list.size() == 0;
     }
@@ -75,6 +84,7 @@ public class MyStack<E> implements Cloneable {
      *
      * @return stack size
      */
+    @Override
     public int size() {
         return list.size();
     }
@@ -82,6 +92,7 @@ public class MyStack<E> implements Cloneable {
     /**
      * Removes all elements from the stack.
      */
+    @Override
     public void clear() {
         list.clear();
     }
@@ -93,6 +104,7 @@ public class MyStack<E> implements Cloneable {
      * @return true if stack contains element
      * @throws NullPointerException if element is null
      */
+    @Override
     public boolean contains(E element) {
         if (element == null) {
             throw new NullPointerException("Cannot check contains for null");
@@ -190,22 +202,21 @@ public class MyStack<E> implements Cloneable {
     /**
      * Returns true if this stack equals another stack (same elements in order).
      *
-     * @param obj other object
-     * @return true if equal
+     * @param that the other StackADT to compare with
+     * @return true if both stacks are equal in size and contents; false if not equal
      */
     @Override
-    @SuppressWarnings("unchecked")
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (!(obj instanceof MyStack)) return false;
+    public boolean equals(StackADT<E> that) {
+        if (this == that) return true;
+        if (that == null) return false;
+        if (this.size() != that.size()) return false;
 
-        MyStack<E> other = (MyStack<E>) obj;
+        Iterator<E> thisIt = this.iterator();
+        Iterator<E> thatIt = that.iterator();
 
-        if (this.size() != other.size()) return false;
-
-        for (int i = 0; i < size(); i++) {
-            E e1 = this.list.get(i);
-            E e2 = other.list.get(i);
+        while (thisIt.hasNext() && thatIt.hasNext()) {
+            E e1 = thisIt.next();
+            E e2 = thatIt.next();
             if (e1 == null ? e2 != null : !e1.equals(e2)) {
                 return false;
             }
