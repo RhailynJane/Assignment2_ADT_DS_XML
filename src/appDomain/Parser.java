@@ -12,14 +12,14 @@ import java.util.Scanner;
  * If no filename is provided, the program will prompt for one.
  *
  * @author Rhailyn Cona, Komalpreet Kaur, Anne Marie Ala, Abel Fekadu, Samuel Braun
- * @version 1.0
+ * @version 1.1
  */
 public class Parser {
 
     /**
      * Main method - entry point for the XML Parser application.
      *
-     * @param args command line arguments - expects XML filename
+     * @param args command line arguments - expects XML filename or -h/--help
      */
     public static void main(String[] args) {
         System.out.println("=================================");
@@ -29,10 +29,13 @@ public class Parser {
         Parser parser = new Parser();
 
         if (args.length > 0) {
-            // Filename provided as command line argument
-            parser.parseFile(args[0]);
+            String firstArg = args[0].trim();
+            if (firstArg.equalsIgnoreCase("-h") || firstArg.equalsIgnoreCase("--help")) {
+                displayUsage();
+                return;
+            }
+            parser.parseFile(firstArg);
         } else {
-            // Interactive mode - prompt for filename
             parser.runInteractiveMode();
         }
     }
@@ -41,28 +44,27 @@ public class Parser {
      * Runs the parser in interactive mode, prompting user for filenames.
      */
     private void runInteractiveMode() {
-        Scanner scanner = new Scanner(System.in);
+        // Use try-with-resources to ensure Scanner is closed properly
+        try (Scanner scanner = new Scanner(System.in)) {
+            while (true) {
+                System.out.println("\nEnter XML filename to parse (or 'quit' to exit):");
+                System.out.print("> ");
 
-        while (true) {
-            System.out.println("\nEnter XML filename to parse (or 'quit' to exit):");
-            System.out.print("> ");
+                String input = scanner.nextLine().trim();
 
-            String input = scanner.nextLine().trim();
+                if (input.equalsIgnoreCase("quit") || input.equalsIgnoreCase("q")) {
+                    System.out.println("Thank you for using XML Parser!");
+                    break;
+                }
 
-            if (input.equalsIgnoreCase("quit") || input.equalsIgnoreCase("q")) {
-                System.out.println("Thank you for using XML Parser!");
-                break;
+                if (input.isBlank()) {
+                    System.out.println("Please enter a filename.");
+                    continue;
+                }
+
+                parseFile(input);
             }
-
-            if (input.isEmpty()) {
-                System.out.println("Please enter a filename.");
-                continue;
-            }
-
-            parseFile(input);
         }
-
-        scanner.close();
     }
 
     /**
@@ -75,7 +77,7 @@ public class Parser {
         System.out.println("Parsing file: " + filename);
         System.out.println("=".repeat(50));
 
-        // Check if file exists
+        // Validate file existence and accessibility
         File file = new File(filename);
         if (!file.exists()) {
             System.err.println("Error: File '" + filename + "' not found.");
@@ -92,7 +94,6 @@ public class Parser {
             return;
         }
 
-        // Create parser and parse the file
         XMLParser xmlParser = new XMLParser();
 
         try {
@@ -100,7 +101,6 @@ public class Parser {
             boolean isValid = xmlParser.parseFile(filename);
             long endTime = System.currentTimeMillis();
 
-            // Display results
             System.out.println("\nParsing completed in " + (endTime - startTime) + " ms");
             System.out.println("File size: " + file.length() + " bytes");
 
@@ -108,12 +108,10 @@ public class Parser {
                 System.out.println("\n✓ SUCCESS: XML file is valid!");
                 System.out.println("  All opening tags have matching closing tags.");
             } else {
-                System.out.println("\n✗ VALIDATION FAILED: XML file has errors.");
-                System.out.println();
+                System.out.println("\n✗ VALIDATION FAILED: XML file has errors.\n");
                 xmlParser.printErrors();
             }
 
-            // Show summary
             int errorCount = xmlParser.getErrors().size();
             System.out.println("\nSummary:");
             System.out.println("  Errors found: " + errorCount);
@@ -136,6 +134,7 @@ public class Parser {
         System.out.println();
         System.out.println("Arguments:");
         System.out.println("  filename    Path to the XML file to parse (optional)");
+        System.out.println("  -h, --help  Show this help message");
         System.out.println();
         System.out.println("Examples:");
         System.out.println("  java appDomain.Parser sample.xml");

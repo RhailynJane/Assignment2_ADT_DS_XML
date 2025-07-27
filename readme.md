@@ -7,6 +7,7 @@
 - Anne Marie Ala
 - Rhailyn Jane Cona
 - Abel Fekadu
+- Samuel Braun
 
 ---
 
@@ -100,10 +101,11 @@ Open `doc/index.html` in any browser to view the generated documentation.
    <title>Refactoring</title>
    <author>Martin Fowler</author>
    <!-- Missing closing tag for book -->
-   <book>
+   <book
       <title>The Pragmatic Programmer</title>
       <author>Andrew Hunt</author>
-   </book
+   </book>
+   
 </library>
 ```
 
@@ -134,7 +136,7 @@ All opening tags have matching closing tags.
 
 - **"Class not found"**: Ensure you're using `java -jar Parser.jar` or the correct classpath.
 - **"File not found"**: Confirm the XML file exists and the path is correct.
-- **Compilation errors**: Verify that all files are present and you're using Java 8 or higher.
+- **Compilation errors**: Verify that all files are present, and you're using Java 8 or higher.
 
 ---
 

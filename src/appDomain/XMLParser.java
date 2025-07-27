@@ -3,217 +3,238 @@ package appDomain;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.List;
 
+import utilities.StackADT;
+import utilities.QueueADT;
+import utilities.Iterator;
+import implementations.MyStack;
+import implementations.MyQueue;
+
 /**
- * XML Parser that validates the structure of XML files by checking
- * that all opening tags have corresponding closing tags in the correct order.
- * Uses a stack-based approach to track and validate XML tag pairs.
+ * XMLParser reads and validates XML files using custom stack and queue data structures.
+ * It ensures that all opening tags have matching and properly nested closing tags.
  *
- * @author Rhailyn Cona, Komalpreet Kaur, Anne Marie Ala, Abel Fekadu, Samuel Braun
- * @version 1.1
+ * Implements a parsing logic inspired by Kitty's XML Parser Algorithm.
+ *
+ * @author Abel Fekadu, Annie Marie,
+ * Komalpreet Kaur, Rhailyn Jane Cona, and Samuel Braun
+ * @version 1.3
  */
 public class XMLParser {
 
-    /**
-     * Stack to store opening XML tags for validation
-     */
-    private Deque<String> tagStack;
+    private List<String> errors;            // Stores error messages
+    private StackADT<String> tagStack;      // Stack to track open tags
+    private QueueADT<String> errorQ;        // Queue to track tag errors (mismatches)
+    private QueueADT<String> extrasQ;       // Queue to track extra unmatched tags
+    private QueueADT<String> tagHistory;    // Queue to track all tags seen in order
 
     /**
-     * List to store any errors found during parsing
-     */
-    private List<String> errors;
-
-    /**
-     * Current line number being processed (for error reporting)
-     */
-    private int currentLine;
-
-    /**
-     * Constructs a new XMLParser with an empty stack and error list.
+     * Constructs a new XMLParser with empty stack, queues, and error list.
      */
     public XMLParser() {
-        this.tagStack = new ArrayDeque<>();
-        this.errors = new ArrayList<>();
-        this.currentLine = 0;
+        errors = new ArrayList<>();
+        tagStack = new MyStack<>();
+        errorQ = new MyQueue<>();
+        extrasQ = new MyQueue<>();
+        tagHistory = new MyQueue<>();
     }
 
     /**
-     * Parses and validates an XML file.
+     * Parses an XML file and validates the structure of its tags.
      *
-     * @param filename the path to the XML file to parse
-     * @return true if the XML is valid, false otherwise
-     * @throws IOException if there's an error reading the file
+     * @param filename path to the XML file
+     * @return true if XML is well-formed; false otherwise
+     * @throws IOException if file reading fails
      */
     public boolean parseFile(String filename) throws IOException {
         errors.clear();
         tagStack.clear();
-        currentLine = 0;
+        errorQ.dequeueAll();
+        extrasQ.dequeueAll();
+        tagHistory.dequeueAll();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
             String line;
+            int lineNumber = 0;
 
             while ((line = reader.readLine()) != null) {
-                currentLine++;
-                processLine(line);
+                lineNumber++;
+                parseLine(line.trim(), lineNumber);
             }
-
-            // Check if there are any unclosed tags remaining
-            if (!tagStack.isEmpty()) {
-                while (!tagStack.isEmpty()) {
-                    String unclosedTag = tagStack.pop();
-                    errors.add("Error: Unclosed tag <" + unclosedTag + ">");
-                }
-            }
-
-        } catch (IOException e) {
-            errors.add("Error reading file: " + e.getMessage());
-            throw e;
         }
+
+        // After processing all lines, push remaining open tags to errorQ
+        while (!tagStack.isEmpty()) {
+            String unclosedTag = tagStack.pop();
+            errorQ.enqueue(unclosedTag);
+        }
+
+        // Match tags in errorQ and extrasQ as per Kitty's algorithm
+        reconcileErrors();
 
         return errors.isEmpty();
     }
 
     /**
-     * Processes a single line of XML, extracting and validating tags.
+     * Parses a single line of XML and validates tags according to rules.
      *
-     * @param line the line to process
+     * @param line       the line of XML to parse
+     * @param lineNumber the line number (for error reporting)
      */
-    private void processLine(String line) {
-        if (line == null || line.trim().isEmpty()) {
-            return;
-        }
-
-        // Find all tags in the line
+    private void parseLine(String line, int lineNumber) {
         int index = 0;
-        while (index < line.length()) {
-            int tagStart = line.indexOf('<', index);
-            if (tagStart == -1) {
-                break; // No more tags in this line
-            }
 
-            int tagEnd = line.indexOf('>', tagStart);
-            if (tagEnd == -1) {
-                errors.add("Line " + currentLine + ": Malformed tag - missing closing '>'");
+        while (index < line.length()) {
+            int openTagStart = line.indexOf('<', index);
+            if (openTagStart == -1) break;
+
+            int openTagEnd = line.indexOf('>', openTagStart);
+            if (openTagEnd == -1) {
+                errors.add("Line " + lineNumber + ": Tag not closed properly.");
                 break;
             }
 
-            String fullTag = line.substring(tagStart + 1, tagEnd);
-            processTag(fullTag);
+            String tagContent = line.substring(openTagStart + 1, openTagEnd).trim();
 
-            index = tagEnd + 1;
+            // Ignore processing instructions and comments
+            if (tagContent.startsWith("!--") || tagContent.startsWith("?")) {
+                index = openTagEnd + 1;
+                continue;
+            }
+
+            // Self-closing tag: <tag/>
+            if (tagContent.endsWith("/")) {
+                String selfTag = tagContent.split("\\s+")[0];
+                tagHistory.enqueue(selfTag);
+                index = openTagEnd + 1;
+                continue;
+            }
+
+            // Closing tag: </tag>
+            if (tagContent.startsWith("/")) {
+                String closingTag = tagContent.substring(1).split("\\s+")[0];
+                tagHistory.enqueue(closingTag);
+
+                if (tagStack.isEmpty()) {
+                    // Closing tag without matching opening tag
+                    extrasQ.enqueue(closingTag);
+                } else {
+                    String lastOpened = tagStack.peek();
+                    if (lastOpened.equals(closingTag)) {
+                        // Proper match
+                        tagStack.pop();
+                    } else if (errorQ.isEmpty() || !errorQ.peek().equals(closingTag)) {
+                        // Check if closing tag matches head of errorQ (ignore if matches)
+                        if (stackContains(closingTag)) {
+                            // Pop stack into errorQ until match
+                            while (!tagStack.isEmpty() && !tagStack.peek().equals(closingTag)) {
+                                errorQ.enqueue(tagStack.pop());
+                            }
+                            if (!tagStack.isEmpty()) tagStack.pop(); // Pop the matching tag
+                        } else {
+                            // Closing tag does not match any opening tag
+                            extrasQ.enqueue(closingTag);
+                        }
+                    } else {
+                        // Matches head of errorQ, dequeue and ignore
+                        errorQ.dequeue();
+                    }
+                }
+                index = openTagEnd + 1;
+                continue;
+            }
+
+            // Opening tag: <tag>
+            String tagName = tagContent.split("\\s+")[0];
+            tagStack.push(tagName);
+            tagHistory.enqueue(tagName);
+            index = openTagEnd + 1;
         }
     }
 
     /**
-     * Processes a single XML tag (without the < > brackets).
+     * Checks if the stack contains the given tag.
      *
-     * @param tagContent the content of the tag
+     * @param tag the tag to check
+     * @return true if the tag is in the stack, false otherwise
      */
-    private void processTag(String tagContent) {
-        if (tagContent == null || tagContent.trim().isEmpty()) {
-            errors.add("Line " + currentLine + ": Empty tag found");
-            return;
+    private boolean stackContains(String tag) {
+        Iterator<String> iter = tagStack.iterator();
+        while (iter.hasNext()) {
+            if (iter.next().equals(tag)) return true;
         }
+        return false;
+    }
 
-        tagContent = tagContent.trim();
+    /**
+     * Reconcile unmatched tags in errorQ and extrasQ following Kitty's algorithm.
+     */
+    private void reconcileErrors() {
+        while (!errorQ.isEmpty() || !extrasQ.isEmpty()) {
+            if (errorQ.isEmpty() && !extrasQ.isEmpty()) {
+                while (!extrasQ.isEmpty()) {
+                    String extraTag = extrasQ.dequeue();
+                    errors.add("Extra closing tag </" + extraTag + "> found without matching opening tag.");
+                }
+                break;
+            } else if (!errorQ.isEmpty() && extrasQ.isEmpty()) {
+                while (!errorQ.isEmpty()) {
+                    String unclosedTag = errorQ.dequeue();
+                    errors.add("Unclosed tag <" + unclosedTag + "> found.");
+                }
+                break;
+            } else {
+                String errorTag = errorQ.peek();
+                String extraTag = extrasQ.peek();
 
-        // Skip XML declarations, comments, and processing instructions
-        if (tagContent.startsWith("?") || tagContent.startsWith("!")) {
-            return;
-        }
-
-        // Check for self-closing tag
-        if (tagContent.endsWith("/")) {
-            // Self-closing tag - no need to add to stack
-            return;
-        }
-
-        // Check if it's a closing tag
-        if (tagContent.startsWith("/")) {
-            String closingTagName = extractTagName(tagContent.substring(1));
-            handleClosingTag(closingTagName);
-        } else {
-            // Opening tag
-            String openingTagName = extractTagName(tagContent);
-            if (openingTagName != null && !openingTagName.isEmpty()) {
-                tagStack.push(openingTagName);
+                if (!errorTag.equals(extraTag)) {
+                    errors.add("Tag mismatch error: expected </" + errorTag + "> but found </" + extraTag + ">.");
+                    errorQ.dequeue();
+                } else {
+                    // Both match, remove from both queues without error
+                    errorQ.dequeue();
+                    extrasQ.dequeue();
+                }
             }
         }
     }
 
     /**
-     * Handles a closing tag by checking if it matches the most recent opening tag.
+     * Returns list of errors found during parsing.
      *
-     * @param closingTagName the name of the closing tag
-     */
-    private void handleClosingTag(String closingTagName) {
-        if (tagStack.isEmpty()) {
-            errors.add("Line " + currentLine + ": Closing tag </" + closingTagName +
-                    "> found without matching opening tag");
-            return;
-        }
-
-        String expectedTag = tagStack.pop();
-        if (!expectedTag.equals(closingTagName)) {
-            errors.add("Line " + currentLine + ": Closing tag </" + closingTagName +
-                    "> does not match opening tag <" + expectedTag + ">");
-        }
-    }
-
-    /**
-     * Extracts the tag name from tag content, removing any attributes.
-     *
-     * @param tagContent the full tag content
-     * @return the tag name only
-     */
-    private String extractTagName(String tagContent) {
-        if (tagContent == null || tagContent.trim().isEmpty()) {
-            return null;
-        }
-
-        // Find the first space or end of string to get just the tag name
-        int spaceIndex = tagContent.indexOf(' ');
-        if (spaceIndex == -1) {
-            return tagContent.trim();
-        } else {
-            return tagContent.substring(0, spaceIndex).trim();
-        }
-    }
-
-    /**
-     * Returns a list of all errors found during parsing.
-     *
-     * @return list of error messages
+     * @return list of error messages (empty if valid)
      */
     public List<String> getErrors() {
         return new ArrayList<>(errors);
     }
 
     /**
-     * Returns whether the last parsed XML was valid.
-     *
-     * @return true if no errors were found, false otherwise
-     */
-    public boolean isValid() {
-        return errors.isEmpty();
-    }
-
-    /**
-     * Prints all errors to the console.
+     * Prints errors found during parsing and tag history.
      */
     public void printErrors() {
         if (errors.isEmpty()) {
-            System.out.println("No errors found - XML is valid!");
+            System.out.println("No errors found.");
         } else {
-            System.out.println("Errors found:");
-            for (String error : errors) {
-                System.out.println("  " + error);
+            System.out.println("Errors:");
+            for (String err : errors) {
+                System.out.println("  " + err);
             }
         }
+        System.out.println("\nTag history (in order seen):");
+        Iterator<String> it = tagHistory.iterator();
+        while (it.hasNext()) {
+            System.out.println("  <" + it.next() + ">");
+        }
+    }
+
+    /**
+     * Returns true if the last parsed file was valid (no errors).
+     *
+     * @return true if no errors, false otherwise
+     */
+    public boolean isValid() {
+        return errors.isEmpty();
     }
 }
